@@ -9,6 +9,7 @@ const loadingDiv = document.getElementById("loading");
 let dataset = []; // Stores the original dataset
 let filteredData = []; // Stores filtered data
 let sortState = {}; // Stores sorting state for columns
+let columnFilters = {}; // Store current filter values for each column
 
 // Parse pasted data into a 2D array
 function parseData(data) {
@@ -35,8 +36,9 @@ function renderTable(data) {
 
   if (data.length === 0) return;
 
-  // Render headers
   const headers = data[0];
+
+  // Create header row with sorting functionality
   const headerRow = document.createElement("tr");
   headers.forEach((header, index) => {
     const th = document.createElement("th");
@@ -60,6 +62,29 @@ function renderTable(data) {
     headerRow.appendChild(th);
   });
   tableHead.appendChild(headerRow);
+
+  // Add filter row
+  const filterRow = document.createElement("tr");
+  headers.forEach((_, index) => {
+    const filterCell = document.createElement("th");
+    const filterInput = document.createElement("input");
+    filterInput.type = "text";
+    filterInput.placeholder = "Filter...";
+    filterInput.dataset.index = index;
+
+    // Restore existing filter value for the column
+    filterInput.value = columnFilters[index] || "";
+
+    // Add event listener for filtering
+    filterInput.addEventListener("input", (e) => {
+      columnFilters[index] = e.target.value; // Save the filter value
+      filterByColumn(index, e.target.value);
+    });
+
+    filterCell.appendChild(filterInput);
+    filterRow.appendChild(filterCell);
+  });
+  tableHead.appendChild(filterRow);
 
   // Render body rows
   data.slice(1).forEach((row) => {
@@ -118,6 +143,19 @@ function filterTable(query) {
   renderTable([dataset[0], ...filteredData]);
 }
 
+function filterByColumn(columnIndex, query) {
+  // Filter dataset based on column-specific query
+  filteredData = dataset
+    .slice(1)
+    .filter(
+      (row) =>
+        row[columnIndex] &&
+        row[columnIndex].toLowerCase().includes(query.toLowerCase())
+    );
+
+  renderTable([dataset[0], ...filteredData]);
+}
+
 // Event listeners
 loadDataButton.addEventListener("click", () => {
   showLoading();
@@ -125,6 +163,7 @@ loadDataButton.addEventListener("click", () => {
   setTimeout(() => {
     dataset = parseData(pasteArea.value);
     filteredData = dataset.slice(1); // Exclude headers for filtering
+    columnFilters = {}; // Reset column filters
     sortState = {}; // Reset sort state
     renderTable(dataset);
     hideLoading();
