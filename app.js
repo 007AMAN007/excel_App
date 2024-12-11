@@ -12,11 +12,41 @@ let sortState = {}; // Stores sorting state for columns
 let columnFilters = {}; // Store current filter values for each column
 
 // Parse CSV data into a 2D array
+// Parse CSV using a robust method to handle quoted values with commas or newlines
 function parseCSV(data) {
-  return data
-    .trim()
-    .split("\n")
-    .map((row) => row.split(","));
+  const rows = [];
+  const lines = data.split("\n");
+
+  lines.forEach((line) => {
+    const row = [];
+    let cell = "";
+    let inQuotes = false;
+
+    for (let char of line) {
+      if (char === '"' && !inQuotes) {
+        // Start of a quoted value
+        inQuotes = true;
+      } else if (char === '"' && inQuotes) {
+        // End of a quoted value
+        inQuotes = false;
+      } else if (char === "," && !inQuotes) {
+        // Add the cell to the row and reset
+        row.push(cell.trim());
+        cell = "";
+      } else {
+        // Append the character to the current cell
+        cell += char;
+      }
+    }
+
+    // Add the last cell to the row
+    if (cell) row.push(cell.trim());
+
+    // Only push non-empty rows
+    if (row.length > 0) rows.push(row);
+  });
+
+  return rows;
 }
 
 // Show loading spinner
