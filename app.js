@@ -185,17 +185,32 @@ function filterByColumn(columnIndex, query) {
   renderTable([dataset[0], ...filteredData]);
 }
 
+// Handle XLSX file parsing
+function parseXLSX(data) {
+  const workbook = XLSX.read(data, { type: 'binary' });
+  const sheetName = workbook.SheetNames[0]; // Assume first sheet
+  const sheet = workbook.Sheets[sheetName];
+  return XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Convert to 2D array
+}
+
 // Handle file parsing
 function handleFile(file) {
   const reader = new FileReader();
   reader.onload = (e) => {
-    dataset = parseCSV(e.target.result);
-    filteredData = dataset.slice(1); // Exclude headers
+    const fileData = e.target.result;
+
+    if (file.name.endsWith(".csv")) {
+      dataset = parseCSV(fileData);
+    } else if (file.name.endsWith(".xlsx")) {
+      dataset = parseXLSX(fileData);
+    }
+
+    filteredData = dataset.slice(1);
     columnFilters = {};
     sortState = {};
     renderTable(dataset);
   };
-  reader.readAsText(file);
+  reader.readAsBinaryString(file);
 }
 
 // Drag-and-drop functionality
@@ -253,7 +268,7 @@ function calculateColumn(action) {
   } else if (action === "sum") {
     // Check if all values in the column are numeric
     const nonNumericValue = columnData.find(
-      (value) => isNaN(parseFloat(value)) || value.trim() === ""
+      (value) => isNaN(parseFloat(value))
     );
     if (nonNumericValue) {
       calculationResult.textContent =

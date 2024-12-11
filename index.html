@@ -74,8 +74,8 @@
   </head>
   <body>
     <h1>Dataset Manager</h1>
-    <div id="dropZone">Drag and drop a CSV file here or click to browse</div>
-    <input type="file" id="fileInput" accept=".csv" />
+    <div id="dropZone">Drag and drop a CSV or XLSX file here or click to browse</div>
+    <input type="file" id="fileInput" accept=".csv,.xlsx" />
     <div class="loading" id="loading">
       <span>Loading...</span>
     </div>
@@ -92,7 +92,7 @@
       <button id="sumButton">Sum</button>
       <p id="calculationResult"></p>
     </div>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
