@@ -1,5 +1,5 @@
-const pasteArea = document.getElementById("pasteArea");
-const loadDataButton = document.getElementById("loadData");
+const fileInput = document.getElementById("fileInput");
+const dropZone = document.getElementById("dropZone");
 const filterInput = document.getElementById("filterInput");
 const dataTable = document.getElementById("dataTable");
 const tableHead = dataTable.querySelector("thead");
@@ -11,12 +11,12 @@ let filteredData = []; // Stores filtered data
 let sortState = {}; // Stores sorting state for columns
 let columnFilters = {}; // Store current filter values for each column
 
-// Parse pasted data into a 2D array
-function parseData(data) {
+// Parse CSV data into a 2D array
+function parseCSV(data) {
   return data
     .trim()
     .split("\n")
-    .map((row) => row.split("\t"));
+    .map((row) => row.split(","));
 }
 
 // Show loading spinner
@@ -100,26 +100,22 @@ function renderTable(data) {
 
 // Sort table by column
 function sortTable(columnIndex) {
-  // Reset sort state for all columns except the current one
   Object.keys(sortState).forEach((index) => {
     if (index != columnIndex) {
-      sortState[index] = null; // Reset sorting state
+      sortState[index] = null;
     }
   });
 
-  // Toggle sort direction for the clicked column
   sortState[columnIndex] = sortState[columnIndex] === "asc" ? "desc" : "asc";
-
   const direction = sortState[columnIndex] === "asc" ? 1 : -1;
 
   showLoading();
 
   setTimeout(() => {
     filteredData.sort((a, b) => {
-      let valA = a[columnIndex] || ""; // Default to empty string if undefined
-      let valB = b[columnIndex] || ""; // Default to empty string if undefined
+      let valA = a[columnIndex] || "";
+      let valB = b[columnIndex] || "";
 
-      // Handle numeric and string sorting
       if (!isNaN(valA) && !isNaN(valB)) {
         valA = parseFloat(valA);
         valB = parseFloat(valB);
@@ -130,10 +126,10 @@ function sortTable(columnIndex) {
 
     renderTable([dataset[0], ...filteredData]);
     hideLoading();
-  }, 200); // Simulate loading time
+  }, 200);
 }
 
-// Filter table by input
+// Filter table globally
 function filterTable(query) {
   filteredData = dataset
     .slice(1)
@@ -143,8 +139,8 @@ function filterTable(query) {
   renderTable([dataset[0], ...filteredData]);
 }
 
+// Filter by column with value
 function filterByColumn(columnIndex, query) {
-  // Filter dataset based on column-specific query
   filteredData = dataset
     .slice(1)
     .filter(
@@ -152,24 +148,49 @@ function filterByColumn(columnIndex, query) {
         row[columnIndex] &&
         row[columnIndex].toLowerCase().includes(query.toLowerCase())
     );
-
   renderTable([dataset[0], ...filteredData]);
 }
 
-// Event listeners
-loadDataButton.addEventListener("click", () => {
-  showLoading();
-
-  setTimeout(() => {
-    dataset = parseData(pasteArea.value);
-    filteredData = dataset.slice(1); // Exclude headers for filtering
-    columnFilters = {}; // Reset column filters
-    sortState = {}; // Reset sort state
+// Handle file parsing
+function handleFile(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    dataset = parseCSV(e.target.result);
+    filteredData = dataset.slice(1); // Exclude headers
+    columnFilters = {};
+    sortState = {};
     renderTable(dataset);
-    hideLoading();
-  }, 200); // Simulate loading time
+  };
+  reader.readAsText(file);
+}
+
+// Drag-and-drop functionality
+dropZone.addEventListener("click", () => fileInput.click());
+dropZone.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  dropZone.classList.add("dragover");
+});
+dropZone.addEventListener("dragleave", () => {
+  dropZone.classList.remove("dragover");
+});
+dropZone.addEventListener("drop", (e) => {
+  e.preventDefault();
+  dropZone.classList.remove("dragover");
+  const file = e.dataTransfer.files[0];
+  if (file && file.type === "text/csv") {
+    handleFile(file);
+  } else {
+    alert("Please drop a valid CSV file.");
+  }
 });
 
+// Handle file input change
+fileInput.addEventListener("change", () => {
+  const file = fileInput.files[0];
+  if (file) handleFile(file);
+});
+
+// Global filter
 filterInput.addEventListener("input", (e) => {
   filterTable(e.target.value);
 });

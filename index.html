@@ -1,74 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dataset Manager</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      max-width: 1200px;
-      margin: auto;
-    }
-    textarea {
-      width: 100%;
-      height: 100px;
-      margin-bottom: 20px;
-    }
-    button {
-      padding: 8px 16px;
-      margin-bottom: 10px;
-      cursor: pointer;
-    }
-    input {
-      margin-bottom: 10px;
-      display: block;
-      width: 100%;
-      padding: 5px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
-      position: relative;
-    }
-    th {
-      cursor: pointer;
-      background-color: #f4f4f4;
-    }
-    th .sort-icon {
-      margin-left: 8px;
-      font-size: 12px;
-    }
-    .loading {
-      display: none;
-      margin: 10px 0;
-      text-align: center;
-    }
-    .loading span {
-      font-size: 18px;
-    }
-  </style>
-</head>
-<body>
-  <h1>Dataset Manager</h1>
-  <textarea id="pasteArea" placeholder="Paste your dataset here (from Excel)"></textarea>
-  <button id="loadData">Load Data</button>
-  <div class="loading" id="loading">
-    <span>Loading...</span>
-  </div>
-  <input type="text" id="filterInput" placeholder="Global Filter...">
-  <table id="dataTable">
-    <thead></thead>
-    <tbody></tbody>
-  </table>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dataset Manager</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        max-width: 1200px;
+        margin: auto;
+      }
+      button {
+        padding: 8px 16px;
+        margin-bottom: 10px;
+        cursor: pointer;
+      }
+      input[type="file"] {
+        margin-bottom: 10px;
+        display: none; /* Hide the file input */
+      }
+      #dropZone {
+        border: 2px dashed #ccc;
+        padding: 20px;
+        text-align: center;
+        margin-bottom: 20px;
+        background-color: #f9f9f9;
+        color: #555;
+        cursor: pointer;
+      }
+      #dropZone.dragover {
+        background-color: #eef;
+        border-color: #77a;
+        color: #333;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        table-layout: auto; /* Allows column widths to adjust automatically */
+      }
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
+        position: relative;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      th {
+        cursor: pointer;
+        background-color: #f4f4f4;
+      }
+      th .sort-icon {
+        margin-left: 8px;
+        font-size: 12px;
+      }
+      th input {
+        width: 100%;
+        padding: 5px;
+      }
+      .loading {
+        display: none;
+        margin: 10px 0;
+        text-align: center;
+      }
+      .loading span {
+        font-size: 18px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Dataset Manager</h1>
+    <div id="dropZone">Drag and drop a CSV file here or click to browse</div>
+    <input type="file" id="fileInput" accept=".csv" />
+    <div class="loading" id="loading">
+      <span>Loading...</span>
+    </div>
+    <input type="text" id="filterInput" placeholder="Global Filter..." />
+    <table id="dataTable">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
 
-  <script src="app.js"></script>
-</body>
+    <script src="app.js"></script>
+  </body>
 </html>
