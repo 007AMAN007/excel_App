@@ -5,6 +5,10 @@ const dataTable = document.getElementById("dataTable");
 const tableHead = dataTable.querySelector("thead");
 const tableBody = dataTable.querySelector("tbody");
 const loadingDiv = document.getElementById("loading");
+const columnSelect = document.getElementById("columnSelect");
+const countButton = document.getElementById("countButton");
+const sumButton = document.getElementById("sumButton");
+const calculationResult = document.getElementById("calculationResult");
 
 let dataset = []; // Stores the original dataset
 let filteredData = []; // Stores filtered data
@@ -224,3 +228,124 @@ fileInput.addEventListener("change", () => {
 filterInput.addEventListener("input", (e) => {
   filterTable(e.target.value);
 });
+
+// Populate the column selector
+function populateColumnSelector(headers) {
+  columnSelect.innerHTML = ""; // Clear existing options
+  headers.forEach((header, index) => {
+    const option = document.createElement("option");
+    option.value = index;
+    option.textContent = header;
+    columnSelect.appendChild(option);
+  });
+}
+
+// Perform a calculation (count or sum) on a specific column
+// Perform a calculation (count or sum) on a specific column
+function calculateColumn(action) {
+  const columnIndex = parseInt(columnSelect.value, 10);
+  const columnData = filteredData
+    .map((row) => row[columnIndex])
+    .filter((value) => value !== "");
+
+  if (action === "count") {
+    calculationResult.textContent = `Count: ${columnData.length}`;
+  } else if (action === "sum") {
+    // Check if all values in the column are numeric
+    const nonNumericValue = columnData.find(
+      (value) => isNaN(parseFloat(value)) || value.trim() === ""
+    );
+    if (nonNumericValue) {
+      calculationResult.textContent =
+        "Error: Column contains non-numeric value(s), cannot calculate sum.";
+      return; // Exit if a non-numeric value is found
+    }
+
+    // Proceed to calculate sum if all values are numeric
+    const numericData = columnData.map((value) => parseFloat(value));
+    const sum = numericData.reduce((total, num) => total + num, 0);
+    calculationResult.textContent = `Sum: ${sum}`;
+  }
+}
+
+// Event listeners for calculation buttons
+countButton.addEventListener("click", () => calculateColumn("count"));
+sumButton.addEventListener("click", () => calculateColumn("sum"));
+
+// Update column selector and reset calculations when new data is rendered
+function updateCalculations(headers) {
+  populateColumnSelector(headers);
+  calculationResult.textContent = ""; // Reset result display
+}
+
+// Modify the renderTable function to include calculation updates
+function renderTable(data) {
+  tableHead.innerHTML = "";
+  tableBody.innerHTML = "";
+
+  if (data.length === 0) return;
+
+  const headers = data[0];
+
+  // Create header row with sorting functionality
+  const headerRow = document.createElement("tr");
+  headers.forEach((header, index) => {
+    const th = document.createElement("th");
+    th.textContent = header;
+    th.dataset.index = index;
+
+    // Add sorting functionality
+    th.addEventListener("click", () => sortTable(index));
+
+    // Add sort icon
+    const icon = document.createElement("span");
+    icon.classList.add("sort-icon");
+    icon.textContent =
+      sortState[index] === "asc"
+        ? "▲"
+        : sortState[index] === "desc"
+        ? "▼"
+        : "⇅";
+    th.appendChild(icon);
+
+    headerRow.appendChild(th);
+  });
+  tableHead.appendChild(headerRow);
+
+  // Add filter row
+  const filterRow = document.createElement("tr");
+  headers.forEach((_, index) => {
+    const filterCell = document.createElement("th");
+    const filterInput = document.createElement("input");
+    filterInput.type = "text";
+    filterInput.placeholder = "Filter...";
+    filterInput.dataset.index = index;
+
+    // Restore existing filter value for the column
+    filterInput.value = columnFilters[index] || "";
+
+    // Add event listener for filtering
+    filterInput.addEventListener("input", (e) => {
+      columnFilters[index] = e.target.value; // Save the filter value
+      filterByColumn(index, e.target.value);
+    });
+
+    filterCell.appendChild(filterInput);
+    filterRow.appendChild(filterCell);
+  });
+  tableHead.appendChild(filterRow);
+
+  // Render body rows
+  data.slice(1).forEach((row) => {
+    const tr = document.createElement("tr");
+    row.forEach((cell) => {
+      const td = document.createElement("td");
+      td.textContent = cell;
+      tr.appendChild(td);
+    });
+    tableBody.appendChild(tr);
+  });
+
+  // Update calculations
+  updateCalculations(headers);
+}
