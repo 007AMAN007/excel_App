@@ -49,6 +49,7 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        max-width: 200px;
       }
       th {
         cursor: pointer;
@@ -74,16 +75,14 @@
   </head>
   <body>
     <h1>Dataset Manager</h1>
-    <div id="dropZone">Drag and drop a CSV or XLSX file here or click to browse</div>
+    <div id="dropZone">
+      Drag and drop a CSV or XLSX file here or click to browse
+    </div>
     <input type="file" id="fileInput" accept=".csv,.xlsx" />
     <div class="loading" id="loading">
       <span>Loading...</span>
     </div>
     <input type="text" id="filterInput" placeholder="Global Filter..." />
-    <table id="dataTable">
-      <thead></thead>
-      <tbody></tbody>
-    </table>
     <div id="calculationSection">
       <h3>Table Calculations</h3>
       <label for="columnSelect">Select Column:</label>
@@ -92,6 +91,10 @@
       <button id="sumButton">Sum</button>
       <p id="calculationResult"></p>
     </div>
+    <table id="dataTable">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="app.js"></script>
   </body>
