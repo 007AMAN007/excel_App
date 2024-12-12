@@ -51,6 +51,15 @@
         text-overflow: ellipsis;
         max-width: 200px;
       }
+      /* Expand content on hover */
+      th:hover,
+      td:hover {
+        overflow: visible;
+        white-space: normal;
+        z-index: 1;
+        background-color: #fff;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+      }
       th {
         cursor: pointer;
         background-color: #f4f4f4;
