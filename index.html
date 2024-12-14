@@ -80,13 +80,24 @@
       .loading span {
         font-size: 18px;
       }
+      textarea {
+      width: 100%;
+      height: 100px;
+      margin-bottom: 20px;
+      font-family: monospace;
+      resize: none;
+      padding: 10px;
+    }
     </style>
   </head>
   <body>
     <h1>Dataset Manager</h1>
     <div id="dropZone">
-      Drag and drop a CSV or XLSX file here or click to browse
+      Drag and drop a CSV or XLSX file here or click to browse or paste data in following text area
     </div>
+     <!-- Paste Area -->
+  <textarea id="pasteArea" placeholder="Paste your CSV or tab-separated data here..."></textarea>
+  <button id="pasteButton">Load data</button></br>
     <input type="file" id="fileInput" accept=".csv,.xlsx" />
     <div class="loading" id="loading">
       <span>Loading...</span>

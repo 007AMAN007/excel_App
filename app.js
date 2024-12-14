@@ -9,6 +9,8 @@ const columnSelect = document.getElementById("columnSelect");
 const countButton = document.getElementById("countButton");
 const sumButton = document.getElementById("sumButton");
 const calculationResult = document.getElementById("calculationResult");
+const pasteArea = document.getElementById("pasteArea");
+const pasteButton = document.getElementById("pasteButton");
 
 let dataset = []; // Stores the original dataset
 let filteredData = []; // Stores filtered data
@@ -187,7 +189,7 @@ function filterByColumn(columnIndex, query) {
 
 // Handle XLSX file parsing
 function parseXLSX(data) {
-  const workbook = XLSX.read(data, { type: 'binary' });
+  const workbook = XLSX.read(data, { type: "binary" });
   const sheetName = workbook.SheetNames[0]; // Assume first sheet
   const sheet = workbook.Sheets[sheetName];
   return XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Convert to 2D array
@@ -267,8 +269,8 @@ function calculateColumn(action) {
     calculationResult.textContent = `Count: ${columnData.length}`;
   } else if (action === "sum") {
     // Check if all values in the column are numeric
-    const nonNumericValue = columnData.find(
-      (value) => isNaN(parseFloat(value))
+    const nonNumericValue = columnData.find((value) =>
+      isNaN(parseFloat(value))
     );
     if (nonNumericValue) {
       calculationResult.textContent =
@@ -364,3 +366,25 @@ function renderTable(data) {
   // Update calculations
   updateCalculations(headers);
 }
+
+// Parse pasted data into a 2D array
+function parseData(data) {
+  return data
+    .trim()
+    .split("\n")
+    .map(row => row.split("\t"));
+}
+
+// Parse and render pasted data
+pasteButton.addEventListener("click", () => {
+  const pastedData = pasteArea.value;
+  if (pastedData.trim()) {
+    dataset = parseData(pastedData);
+    filteredData = dataset.slice(1);
+    columnFilters = {};
+    sortState = {};
+    renderTable(dataset);
+  } else {
+    alert("Please paste valid data in the textarea.");
+  }
+});
